@@ -1,0 +1,350 @@
+<project name="PowerMangement-WS-EJB" default="deploy.local" basedir="..">
+	
+  <property name="institution" value="qcri"/>
+  <property name="group" value="qcri"/>
+  <property name="base_package.dir" value="org/${institution}"/>
+  <property name="base_package.powermanagement-ws-ejb" value="powermanagement-ws-ejb"/>
+	
+  <property name="system.name" value="powermanagement-ws-ejb"/>
+  <property name="jar.name" value="${system.name}.jar"/>
+  <property name="xml.jar.name" value="${system.name}-xml.jar"/>
+  <property name="war.name" value="${system.name}.war"/>
+
+  <property name="src.dir" value="${basedir}/src"/> 
+  <property name="generated_src.dir" value="${basedir}/generated_src"/>
+  <property name="generated_xml.dir" value="${basedir}/generated_xml"/>
+  <property name="build.dir" value="${basedir}/build"/>
+  <property name="build.classes" value="${build.dir}/classes"/>
+  <property name="jar.dir" value="${basedir}/jars"/> 
+  <property name="web.dir" value="${basedir}/web"/>
+  <property name="conf.dir" value="${basedir}/conf"/>
+  <property name="doc.dir" value="${basedir}/doc"/>
+  <property name="dbmapping.dir" value="${basedir}/../PowerModel/src"/>
+  <!--
+  <property name="conf.classes" value="${conf.dir}/classes"/>
+  <property name="conf.instance" value="${conf.classes}/instance"/>
+  <property name="conf.webinf" value="${conf.dir}/webinf"/>
+  <property name="conf.log" value="${conf.dir}/log"/>
+  <property name="conf.sys" value="${conf.dir}/sys"/>
+  -->
+	
+  <property name="dist.dir" value="${basedir}/dist"/>
+  <property name="dist.src" value="${dist.dir}/WEB-INF/src"/>
+  <property name="dist.classes" value="${dist.dir}/WEB-INF/classes"/>
+  <property name="dist.lib" value="${dist.dir}/WEB-INF/lib"/>
+  <property name="dist.package" value="${dist.classes}/"/>
+  <property name="dist.webinf" value="${dist.dir}/WEB-INF"/>
+  <property name="dist.tld" value="${dist.webinf}/tld"/>
+  <property name="dist.doc" value="${dist.dir}/doc"/>
+	  
+  <property name="tomcat.home" value="C:\apache-tomcat-6.0.18"/>
+  <property name="tomcat.logs" value="${tomcat.home}/logs"/>
+  <property name="tomcat.log.common" value="${tomcat.logs}/common.log"/>
+  <property name="tomcat.log.instance" value="${tomcat.logs}/${system.name}.log"/>
+  <property name="tomcat.webapps" value="${tomcat.home}/webapps"/>
+  <property name="tomcat.common" value="${tomcat.home}/common"/>
+  <property name="tomcat.instance" value="${tomcat.webapps}/${system.name}"/>
+  <property name="tomcat.common.classes" value="${tomcat.common}/classes"/>
+  <!--	
+  <property name="schema.dir" value="${basedir}/schemas" />
+  -->
+  <property name="debug" value="true"/>
+	
+  <property name="classpath" value="
+  	${jar.dir}/bean-validator.jar;
+  	${jar.dir}/commons-collections-3.1.jar;
+  	${jar.dir}/javax.annotation.jar;
+  	${jar.dir}/javax.ejb.jar;
+  	${jar.dir}/javax.enterprise.deploy.jar;
+  	${jar.dir}/javax.jms.jar;
+  	${jar.dir}/javax.management.j2ee.jar;
+  	${jar.dir}/javax.persistence.jar;
+  	${jar.dir}/javax.resource.jar;
+  	${jar.dir}/javax.security.auth.message.jar;
+  	${jar.dir}/javax.security.jacc.jar;
+  	${jar.dir}/javax.servlet.jar;
+  	${jar.dir}/javax.servlet.jsp.jar;
+  	${jar.dir}/javax.servlet.jsp.jstl.jar;
+  	${jar.dir}/javax.transaction.jar;
+  	${jar.dir}/jaxb-api-osgi.jar;
+  	${jar.dir}/jsf-api.jar;
+  	${jar.dir}/jsf-impl.jar;
+  	${jar.dir}/jsr311-api.jar;
+  	${jar.dir}/jstl-impl.jar;
+  	${jar.dir}/mail.jar;
+  	${jar.dir}/webservices-api-osgi.jar;
+  	${jar.dir}/webservices-api.jar;
+  	${jar.dir}/webservices-extra-api.jar;
+  	${jar.dir}/webservices-extra.jar;
+  	${jar.dir}/webservices-rt.jar;
+  	${jar.dir}/weld-osgi-bundle.jar;
+  	${jar.dir}/antlr-2.7.6.jar;
+  	${jar.dir}/cglib-2.2.jar;
+  	${jar.dir}/dom4j-1.6.1.jar;
+  	${jar.dir}/ehcache-1.2.3.jar;
+  	${jar.dir}/ejb3-persistence.jar;
+  	${jar.dir}/javassist-3.9.0.GA.jar;
+  	${jar.dir}/jta-1.1.jar;
+  	${jar.dir}/log4j-1.2.14.jar;
+  	${jar.dir}/slf4j-api-1.5.8.jar;
+  	${jar.dir}/slf4j-log4j12-1.5.8.jar;
+  	${jar.dir}/mysql-connector-java-5.1.18-bin.jar;
+  	${jar.dir}/jaxws-tools-2.1.4;
+	${jar.dir}/toplink-essentials.jar;
+  	${jar.dir}/toplink-essentials-agent.jar"
+  />
+	
+  <fileset dir="${jar.dir}" id="required.libs">
+	<!--
+  	<exclude name="servlet-api.jar"/>
+  	<include name="*.properties"/>	
+  	 -->
+  	<exclude name="javax.servlet.jar"/>
+  	<exclude name="javax.servlet.jsp.jar"/>
+	<include name="*.jar"/>
+  </fileset>
+  
+  <!-- 
+      Path ref used by XDoclet tasks.  
+	      
+      Note: Normally, references to 
+      jboss/server/default/lib will
+      be included as a 3rd fileset.
+  
+  <path id="xdoclet.class.path">
+  	<fileset dir="${jar.dir}">
+  	  <include name="*.jar"/>
+ 	</fileset>
+  	
+  	<fileset dir="${jar.dir}/xdoclet">
+  	 <include name="*.jar"/>
+  	</fileset>	
+  </path>
+  -->
+	<!--
+	<target name="wsapt">
+		<taskdef name="apt" classname="com.sun.tools.ws.ant.Apt">
+			<classpath><path path="${classpath}"/></classpath>
+		</taskdef>
+		<apt destdir="${web.dir}/WEB-INF/classes" sourcedestdir="${src.dir}" classpath="${classpath}" sourcepath="${src.dir}">
+		<source dir="${src.dir}">
+			<include name="**/*.java"/>
+		</source>
+		</apt>
+	</target>
+	<target name="-pre-compile" depends="wsapt"/>
+	-->
+  <target name="prepare">
+	<mkdir dir="${build.dir}"/>
+  	<mkdir dir="${build.classes}"/>
+  	<mkdir dir="${dist.dir}"/>
+  	<mkdir dir="${dist.classes}"/>
+  	<mkdir dir="${dist.lib}"/>
+  	<mkdir dir="${dist.doc}"/>
+  </target>
+		
+  <target name="clean.code">
+  	<echo message="Cleaning code..."/>
+  	
+  	<!-- Delete the build directory -->
+  	<delete dir="${build.dir}" />
+  	 
+  	<!--<delete dir="${generated_src.dir}"/>-->
+  	<delete dir="${generated_src.dir}"/>
+  	
+  	<!-- Delete the distribution directory -->
+  	<delete includeemptydirs="true">
+  	  	<fileset dir="${dist.dir}" includes="**/*"/>
+  	</delete>
+  	
+  	<!-- Delete the common css files (except app specific) 
+  	<delete>
+  	  <fileset dir="${web.dir}/css">
+  		<exclude name="arabidopsis.css" />
+  	    <exclude name="yeast.css" />
+  	  </fileset>
+  	</delete>
+    -->
+  	
+  	<!-- Delete the common javascript files (except app specific) 
+  	<echo message="Remove common javascript..."/>
+  	<delete dir="${web.dir}/js"/>
+  	-->
+  	
+  </target>
+	
+  <target name="clean.tomcat">
+    <echo message="Cleaning tomcat..."/>
+  	
+  	<!-- Delete the tomcat instance -->
+  	<delete dir="${tomcat.instance}"/>
+  	
+  	<delete file="${tomcat.webapps}/${system.name}.war"/>
+  	
+  	<delete file="${tomcat.log.common}"/>
+  	<delete file="${tomcat.log.instance}"/>
+  </target>
+	
+  <target name="clean" depends="clean.code, clean.tomcat" 
+  	description="Cleans code and tomcat" />
+	
+  <!-- 
+      2nd Fileset would normally point to jboss.
+  
+  <target name="xdoclet.web" description="Generates web descriptors">
+   <path id="xdoclet.class.path">
+   	<fileset dir="${jar.dir}/xdoclet">
+   	 <include name="*.jar"/>
+  	</fileset>
+   	
+   	<fileset dir="${jar.dir}">
+   	 <include name="*.jar"/>
+  	</fileset>
+   </path>
+  	
+   <taskdef name="webdoclet" 
+   	        classname="xdoclet.modules.web.WebDocletTask" 
+   	        classpathref="xdoclet.class.path"/>
+  	
+   <tstamp>
+  	<format property="TODAY" pattern="d-MM-yy"/>
+   </tstamp>
+  	
+   <webdoclet destdir="${generated_xml.dir}" excludedtags="@version, @author"
+   	          addedtags="@xdoclet-generated at $TODAY}"
+   	          mergeDir="${basedir}/xdocletmerge">
+   	
+   	 <fileset dir="${src.dir}">
+      <include name="${base_package.dir}/instance/servlets/*Servlet.java"/>
+     </fileset>
+   	
+   	 <deploymentdescriptor destdir="${generated_xml.dir}"
+   	                       displayname="${system.name}"
+   	                       sessiontimeout="120"
+   	                       distributable="false"
+   	                       servletspec="2.3"/>
+   </webdoclet>
+  </target>	
+  -->
+	
+  <target name="package.web" description="Generate Web Archive">
+   <jar jarfile="${dist.dir}/${war.name}" basedir="${dist.dir}"/>
+  </target>
+  
+  <!--	
+  <target name="generate.xmlbeans">
+   <taskdef name="xmlbean" classname="org.apache.xmlbeans.impl.tool.XMLBean" classpath="${jar.dir}/xmlbeans/xbean.jar"/>  
+  	<xmlbean  
+  		  schema="${schema.dir}"
+  	  	  classgendir="${build.classes}/xbeans"  
+  	  	  srcgendir="${generated_src.dir}"  
+  	  	  destfile="${jar.dir}/${xml.jar.name}"  
+  	  	  classpath="${jar.dir}/xmlbeans/xbean.jar"
+  	  	  failonerror="true"/>
+  	<fileset dir="${schema.dir}" includes="**/*.*"/>
+  </target>
+  -->	
+	
+  <target name="compile" depends="prepare" 
+  	description="Compiles all java files">
+  	
+  	<!--
+  	<antcall target="xdoclet.web"/>
+  	-->
+  	
+  	<javac destdir="${build.classes}" debug="${debug}"
+  		optimize="${optimize}" failonerror="true" deprecation="on"
+  		fork="true" memoryMaximumSize="256m" excludes="**/test/*.java" includes="**/*.java" nowarn="no"
+  		source="6" target="6">
+  	  
+  	  <src path="${src.dir}"/>
+  	  <classpath path="${classpath}"/>
+  	</javac>
+  	
+  </target>
+		
+  <target name="package.dist" depends="clean, compile">
+  	<copy toDir="${dist.classes}" overwrite="true">
+  	 <fileset dir="${build.classes}"/>
+  	</copy>
+  	
+  	<!--
+  	<antcall target="copy.classes"/>
+  	
+  	<copy toDir="${dist.classes}" overwrite="true">
+  	 <fileset dir="${conf.dir}/">
+  	  <include name="*"/>
+  	 	<exclude name="libipmi_agent.so"/>
+  	 </fileset>
+ 	</copy>
+ 	-->
+  	<!--
+  	<copy toDir="${dist.classes}/org/qcri/power/util" overwrite="true">
+  	  <fileset dir="${conf.dir}/">
+  	  	<include name="libipmi_agent.so"/>
+  	  </fileset>
+  	</copy>
+  		-->
+  	<copy toDir="${dist.lib}" overwrite="true">
+  	  <fileset dir="${jar.dir}">
+  	  	 <exclude name="javax.servlet.jar"/>
+  	     <exclude name="javax.servlet.jsp.jar"/>
+  	  </fileset>
+  	</copy>
+  	  	
+  	<!--
+  	<copy toDir="${dist.webinf}/lib" flatten="true">
+	 <fileset refid="required.libs" />
+ 	</copy>
+  	
+  	<copy toDir="${dist.dir}/conf" overwrite="true">
+  	 <fileset dir="${conf.sys}">
+  	  <include name="*.xml"/>
+  	 </fileset>	
+  	</copy>
+  	-->
+  	
+  	<copy toDir="${dist.dir}" overwrite="true">
+	 <fileset dir="${web.dir}">
+	  <!--exclude name="templates/**"/-->
+	  <include name="**"/>
+	 </fileset>
+  	</copy>
+  </target>
+  
+  <target name="deploy.local" depends="package.dist, javadoc">
+  	<echo message="Creating war file"/>
+  	<antcall target="package.web"/>
+  	
+  	<!--
+  	<echo message="Configure logging at ${tomcat.common.classes}"/>
+  	<copy toDir="${tomcat.common.classes}" overwrite="true">
+  	 <fileset dir="${conf.log}">
+  	  <include name="log4j.xml"/>
+  	 </fileset>
+  	</copy>
+  	-->
+  	
+  	<echo message="Deploying local tomcat instance at ${tomcat.webapps}"/>
+  	<copy toDir="${tomcat.webapps}" overwrite="true">
+  	 <fileset dir="${dist.dir}">
+  	  <include name="${war.name}"/>
+	 </fileset>
+  	</copy>
+  </target>
+	
+  <target name="javadoc" description="Generate Documentation">
+		<echo message="Generating javadoc..."/>    
+		<delete dir="${doc.dir}"/>
+	    <mkdir dir="${doc.dir}"/>
+	    <javadoc destdir="${doc.dir}" author="true" package="true" windowtitle="Power Management Service API Documentation" doctitle="Power Management Service API Documentation" header="Power Management Service &lt;br&gt; API Documentation" bottom="Copyright © 2012 &lt;a href='http://www.qcri.qa' target='_blank'&gt;QCRI&lt;/a&gt; | All Rights Reserved, Doha, Qatar." footer="Power Management Service &lt;br&gt; API Documentation" classpath="${classpath}">
+	    	<packageset dir="${src.dir}" defaultexcludes="yes">
+	    	</packageset>
+        </javadoc>
+  		<copy toDir="${dist.doc}" overwrite="true">
+  		 <fileset dir="${doc.dir}"/>
+  	  	</copy>
+  </target>
+
+	
+</project>
